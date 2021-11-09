@@ -20,15 +20,10 @@ for($x = 0; $x <= $total; $x++)
             $images[] = $files[$x];
             $title = substr($files[$x], 0, -4);
             $paragraphs[$x] = "<a style=\"display:inline-block;width:800px\" href=".
-                            "readcsv.php?csv_file=".
-                            $files[$x].
-                            "&col=1&name=".
-                            $title.
-                            "&file_index=".
-                            $csv_index.
-                            ">".
-                            $files[$x].
-                            " </a> ".
+                            "readcsv.php?csv_file=".$files[$x].
+                            "&col=2&name=".$title.
+                            "&file_index=".$csv_index.
+                            "&from_y=0>".$files[$x]." </a> ".
                             number_format(filesize($files[$x])/1024, 2, '.', '').
                             " KB <br>\n";
         }
