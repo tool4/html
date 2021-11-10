@@ -9,52 +9,68 @@
       function drawChart() {
           var data = google.visualization.arrayToDataTable([
 <?php
-          $csv_file = $_GET["csv_file"];
-          $file_index = $_GET["file_index"];
-          $col_with_data = $_GET["col"];
-          $from_y = $_GET["from_y"];
-          if ($from_y == "")
-              $from_y == "0";
-          $row = 1;
-          if (($handle = fopen($csv_file, "r")) !== FALSE)
-          {
-              $row = 0;
-              while (($data = fgetcsv($handle, 1000, ",")) !== FALSE)
-              {
-                  $num = count($data);
-                  if ($row % 10 == 0 || $row == 1)
-                  {
-                      echo "\n\t\t\t\t";
-                  }
-                  //if ($row > 0)
-                      echo " [";
-                  for ($c=0; $c < $num; $c++)
-                  {
-                      $entry = trim($data[$c]);
-                      $entry1 = str_replace(":", "", $entry);
-                      if ($data[$c] && ($c == $col_with_data || $c == 0))
-                      {
-                          if ($row == 0)
-                              $title =  $entry;
-                          if ($row > 0 and $c > 0)
-                              echo $entry;
-                          else
-                              echo "'" . $entry1 . "'";
-                          if ($c < $num - 2)
-                              echo ", ";
-                      }
-                  }
-                  //                  if ($row > 0)
-                      echo "],";
-                  $row=$row +1;
-              }
-              fclose($handle);
-          }
-          else
-          {
-              echo "Cannot open file: " . $csv_file;
-          }
-          ?>
+            $csv_file = $_GET["csv_file"];
+            $file_index = $_GET["file_index"];
+            $col_with_data = $_GET["col"];
+            $from_y = $_GET["from_y"];
+            if ($from_y == "")
+                $from_y == "0";
+            $row = 1;
+            if (($handle = fopen($csv_file, "r")) !== FALSE)
+            {
+                #echo "\t\t\t\t//".$csv_file."\n";
+                $pos = strrpos($csv_file, '_');
+                $day =substr($csv_file, $pos - 2, 2);
+                $mon =substr($csv_file, $pos - 5, 2);
+                $year =substr($csv_file, $pos - 10, 4);
+                #echo "\t\t\t\t// day: $day, mon: $mon, year: $year\n";
+                $row = 0;
+                while (($data = fgetcsv($handle, 1000, ",")) !== FALSE)
+                {
+                    $num = count($data);
+                    if ($row % 10 == 0 || $row == 1)
+                    {
+                        if ($row > 0)
+                            echo "\n";
+                        echo "\t\t\t\t";
+                    }
+                    echo " [";
+                    for ($c=0; $c < $num; $c++)
+                    {
+                        $entry = trim($data[$c]);
+                        $time = str_replace(":", "", $entry);
+                        $hour = substr($time, 0, 2);
+                        $min = substr($time, 2, 2);
+                        $time = $entry;
+                        if ($data[$c] && ($c == $col_with_data || $c == 0))
+                        {
+                            if ($row == 0)
+                            {
+                                $title =  $entry;
+                                echo "'$title'";
+                            }
+                            else
+                            {
+                                if ($c == 0)
+                                    #echo "'$hour$min'";
+                                    echo "new Date($year, $mon, $day, $hour, $min, 0)";
+                                else
+                                    echo $entry;
+                            }
+                            if ($c == 0)
+                                echo ", ";
+                        }
+                    }
+                    echo "],";
+                    $row=$row +1;
+                }
+                fclose($handle);
+            }
+            else
+            {
+                echo "Cannot open file: " . $csv_file;
+            }
+?>
           ]);
 
           var options = {
@@ -314,7 +330,6 @@ function get_url($file, $col, $title, $from_y)
             url = url + from_y;
             open_url(url);
         }
-        //action=<?php get_url($file_index, $col, $title, $from_y)?>
         function Load()
         {
             document.getElementById("test1").checked = <?php
